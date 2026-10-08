@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <span
+      th:fragment="badge(state)"
+      class="status-badge"
+      th:classappend="${state}"
+      th:text="${@fmt.etiqueta(state)}"
+    ></span>
+    <div
+      th:fragment="errors"
+      th:if="${#fields.hasErrors('*')}"
+      class="alert alert-danger"
+      role="alert"
+    >
+      <strong>Revisa los datos del formulario.</strong>
+      <ul class="mb-0 mt-2">
+        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+      </ul>
+    </div>
+    <div
+      th:fragment="fieldError(field)"
+      class="field-error"
+      th:if="${#fields.hasErrors(field)}"
+      th:errors="*{__${field}__}"
+    ></div>
+    <nav
+      th:fragment="pagination"
+      class="table-pagination"
+      aria-label="Paginación"
+    >
+      <span
+        th:text="|${page.totalElements} registros · Página ${page.totalPages == 0 ? 1 : page.number + 1} de ${page.totalPages == 0 ? 1 : page.totalPages}|"
+      ></span>
+      <div class="d-flex gap-2">
+        <a
+          class="btn btn-sm btn-outline-secondary"
+          th:if="${page.hasPrevious()}"
+          th:href="${pageLink + (page.number - 1)}"
+          ><i aria-hidden="true" class="bi bi-arrow-left"></i> Anterior</a
+        ><a
+          class="btn btn-sm btn-outline-secondary"
+          th:if="${page.hasNext()}"
+          th:href="${pageLink + (page.number + 1)}"
+          >Siguiente <i aria-hidden="true" class="bi bi-arrow-right"></i
+        ></a>
+      </div>
+    </nav>
+    <div th:fragment="empty(message)" class="empty-state">
+      <i aria-hidden="true" class="bi bi-inbox"></i>
+      <h3>No hay registros para mostrar</h3>
+      <p th:text="${message}"></p>
+    </div>
+  </body>
+</html>

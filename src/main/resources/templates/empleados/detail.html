@@ -1,0 +1,90 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">RECURSOS HUMANOS</div>
+          <h1>Perfil del empleado</h1>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-secondary" th:href="@{/empleados}">Volver</a
+          ><a
+            class="btn btn-primary"
+            th:href="@{/empleados/{id}/editar(id=${e.id})}"
+            ><i aria-hidden="true" class="bi bi-pencil"></i> Editar datos
+            laborales</a
+          >
+        </div>
+      </div>
+      <div class="panel form-narrow">
+        <div class="profile-header">
+          <span class="avatar" th:text="${@fmt.iniciales(e.nombre)}"></span>
+          <div>
+            <h1 th:text="${e.nombre}"></h1>
+            <p class="subtitle mb-2" th:text="${e.puesto.nombre}"></p>
+            <span th:replace="~{fragments/ui :: badge(${e.estado})}"></span>
+          </div>
+        </div>
+        <div class="form-section">
+          <dl class="detail-grid">
+            <div>
+              <dt>ID de empleado</dt>
+              <dd th:text="${e.id}"></dd>
+            </div>
+            <div>
+              <dt>Cédula</dt>
+              <dd th:text="${@fmt.cedula(e.cedula)}"></dd>
+            </div>
+            <div>
+              <dt>Fecha de ingreso</dt>
+              <dd
+                th:text="${#temporals.format(e.fechaIngreso,'dd/MM/yyyy')}"
+              ></dd>
+            </div>
+            <div>
+              <dt>Departamento</dt>
+              <dd th:text="${e.departamento}"></dd>
+            </div>
+            <div>
+              <dt>Puesto definitivo</dt>
+              <dd th:text="${e.puesto.nombre}"></dd>
+            </div>
+            <div>
+              <dt>Salario mensual</dt>
+              <dd th:text="${@fmt.dinero(e.salarioMensual)}"></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="form-actions justify-content-between">
+          <a
+            class="btn btn-outline-secondary"
+            th:href="@{/candidatos/{id}(id=${e.candidato.id})}"
+            ><i aria-hidden="true" class="bi bi-person-lines-fill"></i> Ver
+            postulación original</a
+          >
+          <form
+            method="post"
+            th:action="@{/empleados/{id}/estado(id=${e.id})}"
+            th:data-confirm="|¿Deseas cambiar el estado laboral de ${e.nombre}?|"
+          >
+            <input
+              type="hidden"
+              name="version"
+              th:value="${e.version}"
+            /><button class="btn btn-outline-secondary">
+              <i aria-hidden="true" class="bi bi-power"></i>
+              <span
+                th:text="${e.estado.name() == 'ACTIVO' ? 'Inactivar empleado' : 'Activar empleado'}"
+              ></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

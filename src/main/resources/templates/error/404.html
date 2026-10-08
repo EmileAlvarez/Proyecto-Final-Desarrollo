@@ -1,0 +1,22 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="panel error-panel">
+        <div class="error-code">404</div>
+        <h1>No encontramos esta página</h1>
+        <p class="subtitle mb-4">
+          El registro o la dirección solicitada no existe.
+        </p>
+        <a class="btn btn-primary" th:href="@{/}">Ir al dashboard</a
+        ><a class="btn btn-outline-secondary ms-2" th:href="@{/candidatos}"
+          >Ver candidatos</a
+        >
+      </div>
+    </section>
+  </body>
+</html>

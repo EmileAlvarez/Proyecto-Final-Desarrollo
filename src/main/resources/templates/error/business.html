@@ -1,0 +1,20 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="panel error-panel">
+        <div class="error-code">!</div>
+        <h1>No se pudo completar la operación</h1>
+        <p class="subtitle mb-4" th:text="${message}"></p>
+        <a class="btn btn-primary" th:href="@{/}">Ir al dashboard</a
+        ><a class="btn btn-outline-secondary ms-2" th:href="@{/candidatos}"
+          >Ver candidatos</a
+        >
+      </div>
+    </section>
+  </body>
+</html>

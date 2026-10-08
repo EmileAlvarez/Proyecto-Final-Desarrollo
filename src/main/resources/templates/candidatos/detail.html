@@ -1,0 +1,236 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">PERFIL DEL CANDIDATO</div>
+          <h1>Conoce a tu próximo talento</h1>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-outline-secondary" th:href="@{/candidatos}"
+            >Volver</a
+          ><a
+            class="btn btn-outline-secondary"
+            th:if="${c.estado.name() != 'CONTRATADO'}"
+            th:href="@{/candidatos/{id}/editar(id=${c.id})}"
+            ><i aria-hidden="true" class="bi bi-pencil"></i> Editar perfil</a
+          ><a
+            class="btn btn-primary"
+            th:if="${c.elegible}"
+            th:href="@{/candidatos/{id}/contratar(id=${c.id})}"
+            ><i aria-hidden="true" class="bi bi-person-check"></i> Contratar
+            candidato</a
+          >
+          <form
+            class="d-inline"
+            method="post"
+            th:if="${c.estado.name() != 'CONTRATADO'}"
+            th:action="@{/candidatos/{id}/eliminar(id=${c.id})}"
+            th:data-confirm="|¿Eliminar definitivamente a ${c.nombreCompleto}? Esta acción no se puede deshacer.|"
+          >
+            <input type="hidden" name="version" th:value="${c.version}" />
+            <button class="btn btn-outline-danger" type="submit">
+              <i aria-hidden="true" class="bi bi-trash"></i> Eliminar candidato
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="profile-header">
+          <span
+            class="avatar"
+            th:text="${@fmt.iniciales(c.nombreCompleto)}"
+          ></span>
+          <div>
+            <h1 th:text="${c.nombreCompleto}"></h1>
+            <p class="subtitle mb-2" th:text="${c.puesto.nombre}"></p>
+            <span th:replace="~{fragments/ui :: badge(${c.estado})}"></span>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Datos personales</h2>
+              <i aria-hidden="true" class="bi bi-person text-secondary"></i>
+            </div>
+            <div class="panel-body">
+              <dl class="detail-grid">
+                <div>
+                  <dt>Cédula</dt>
+                  <dd th:text="${@fmt.cedula(c.cedula)}"></dd>
+                </div>
+                <div>
+                  <dt>Registro</dt>
+                  <dd
+                    th:text="${#temporals.format(c.fechaRegistro,'dd/MM/yyyy')}"
+                  ></dd>
+                </div>
+                <div>
+                  <dt>Correo electrónico</dt>
+                  <dd>
+                    <a th:href="|mailto:${c.email}|" th:text="${c.email}"></a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Teléfono</dt>
+                  <dd th:text="${c.telefono ?: 'No especificado'}"></dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Postulación</h2>
+              <i aria-hidden="true" class="bi bi-briefcase text-secondary"></i>
+            </div>
+            <div class="panel-body">
+              <dl class="detail-grid">
+                <div>
+                  <dt>Puesto solicitado</dt>
+                  <dd th:text="${c.puesto.nombre}"></dd>
+                </div>
+                <div>
+                  <dt>Departamento</dt>
+                  <dd th:text="${c.departamento}"></dd>
+                </div>
+                <div>
+                  <dt>Salario esperado</dt>
+                  <dd th:text="${@fmt.dinero(c.salarioAspirado)}"></dd>
+                </div>
+                <div>
+                  <dt>Recomendado por</dt>
+                  <dd th:text="${c.recomendadoPor ?: 'No especificado'}"></dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+          <div class="panel" th:if="${c.estado.name() != 'CONTRATADO'}">
+            <div class="panel-heading"><h2>Proceso de selección</h2></div>
+            <form
+              class="panel-body"
+              method="post"
+              th:action="@{/candidatos/{id}/estado(id=${c.id})}"
+              th:data-confirm="|¿Deseas cambiar el estado de ${c.nombreCompleto}?|"
+            >
+              <input
+                type="hidden"
+                name="version"
+                th:value="${c.version}"
+              /><label for="estado" class="form-label"
+                >Estado del candidato</label
+              ><select
+                class="form-select mb-3"
+                id="estado"
+                name="estado"
+                required
+              >
+                <option
+                  th:each="s : ${estadosCandidato}"
+                  th:if="${s.name() != 'CONTRATADO'}"
+                  th:value="${s}"
+                  th:selected="${s == c.estado}"
+                  th:text="${@fmt.etiqueta(s)}"
+                ></option></select
+              ><button class="btn btn-outline-secondary w-100">
+                Actualizar estado
+              </button>
+            </form>
+          </div>
+          <div class="form-hint" th:if="${c.estado.name() == 'CONTRATADO'}">
+            Contratación completada. Este perfil conserva los datos de la
+            postulación original.
+            <a th:href="@{/empleados(cedula=${c.cedula})}">Ver empleado</a>.
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Competencias</h2>
+              <i aria-hidden="true" class="bi bi-stars text-secondary"></i>
+            </div>
+            <div class="panel-body">
+              <span
+                class="chip"
+                th:each="x : ${c.competencias}"
+                th:text="${x.nombre}"
+              ></span>
+              <p class="subtitle" th:if="${c.competencias.empty}">
+                Sin competencias registradas.
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Idiomas</h2>
+              <i aria-hidden="true" class="bi bi-translate text-secondary"></i>
+            </div>
+            <div class="panel-body">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+                th:each="x : ${c.idiomas}"
+              >
+                <span th:text="${x.idioma.nombre}"></span
+                ><span class="chip" th:text="${@fmt.etiqueta(x.nivel)}"></span>
+              </div>
+              <p class="subtitle" th:if="${c.idiomas.empty}">
+                Sin idiomas registrados.
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Capacitaciones</h2>
+              <i
+                aria-hidden="true"
+                class="bi bi-mortarboard text-secondary"
+              ></i>
+            </div>
+            <div class="panel-body">
+              <div class="timeline-item" th:each="x : ${c.capacitaciones}">
+                <h3 th:text="${x.nombre}"></h3>
+                <p
+                  class="mb-1"
+                  th:text="|${@fmt.etiqueta(x.nivel)} · ${x.institucion}|"
+                ></p>
+                <small
+                  class="text-secondary"
+                  th:text="|${x.fechaDesde} — ${x.fechaHasta ?: 'En curso'}|"
+                ></small>
+              </div>
+              <p class="subtitle" th:if="${c.capacitaciones.empty}">
+                Sin capacitaciones registradas.
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Experiencia laboral</h2>
+              <i aria-hidden="true" class="bi bi-building text-secondary"></i>
+            </div>
+            <div class="panel-body">
+              <div class="timeline-item" th:each="x : ${c.experiencias}">
+                <h3 th:text="${x.puestoOcupado}"></h3>
+                <p class="mb-1" th:text="${x.empresa}"></p>
+                <small
+                  class="text-secondary"
+                  th:text="|${x.fechaDesde} — ${x.fechaHasta ?: 'Actualidad'}|"
+                ></small>
+                <div class="mt-2" th:text="${@fmt.dinero(x.salario)}"></div>
+              </div>
+              <p class="subtitle" th:if="${c.experiencias.empty}">
+                Sin experiencia laboral registrada.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

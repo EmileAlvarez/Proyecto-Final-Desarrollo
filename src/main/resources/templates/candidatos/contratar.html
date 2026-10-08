@@ -1,0 +1,132 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">SELECCIÓN DE PERSONAL</div>
+          <h1>Una nueva incorporación</h1>
+          <p class="subtitle">
+            Confirma los datos laborales para completar la contratación.
+          </p>
+        </div>
+        <a
+          class="btn btn-outline-secondary"
+          th:href="@{/candidatos/{id}(id=${c.id})}"
+          >Volver al perfil</a
+        >
+      </div>
+      <div class="form-narrow">
+        <div class="form-hint">
+          Al confirmar, se creará el empleado y el candidato pasará
+          automáticamente a <strong>Contratado</strong>.
+        </div>
+        <div class="panel">
+          <div class="profile-header">
+            <span
+              class="avatar"
+              th:text="${@fmt.iniciales(c.nombreCompleto)}"
+            ></span>
+            <div>
+              <h2 th:text="${c.nombreCompleto}"></h2>
+              <p
+                class="subtitle"
+                th:text="|${@fmt.cedula(c.cedula)} · ${c.puesto.nombre}|"
+              ></p>
+            </div>
+          </div>
+          <form
+            method="post"
+            th:action="@{/candidatos/{id}/contratar(id=${c.id})}"
+            th:object="${form}"
+            th:data-confirm="|¿Deseas contratar a ${c.nombreCompleto} con los datos laborales indicados? Esta operación creará su registro de empleado.|"
+          >
+            <div class="form-section">
+              <div th:replace="~{fragments/ui :: errors}"></div>
+              <h2 class="form-section-title">Datos de contratación</h2>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label" for="fechaIngreso"
+                    >Fecha de ingreso<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="fechaIngreso"
+                    type="date"
+                    th:field="*{fechaIngreso}"
+                    required
+                  />
+                  <div
+                    th:replace="~{fragments/ui :: fieldError('fechaIngreso')}"
+                  ></div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="departamento"
+                    >Departamento<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="departamento"
+                    type="text"
+                    th:field="*{departamento}"
+                    required
+                    maxlength="100"
+                  />
+                  <div
+                    th:replace="~{fragments/ui :: fieldError('departamento')}"
+                  ></div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="puestoId"
+                    >Puesto definitivo<span class="required">*</span></label
+                  ><select
+                    class="form-select"
+                    id="puestoId"
+                    th:field="*{puestoId}"
+                    required
+                  >
+                    <option value="">Seleccionar…</option>
+                    <option
+                      th:each="x : ${puestos}"
+                      th:value="${x.id}"
+                      th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+                    ></option>
+                  </select>
+                  <div
+                    th:replace="~{fragments/ui :: fieldError('puestoId')}"
+                  ></div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="salarioMensual"
+                    >Salario mensual (RD$)<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="salarioMensual"
+                    type="number"
+                    th:field="*{salarioMensual}"
+                    required
+                    step="0.01"
+                    min="0.01"
+                  />
+                  <div
+                    th:replace="~{fragments/ui :: fieldError('salarioMensual')}"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <a class="btn btn-light" th:href="@{/candidatos/{id}(id=${c.id})}"
+                >Cancelar</a
+              ><button class="btn btn-primary">
+                <i aria-hidden="true" class="bi bi-person-check"></i> Confirmar
+                contratación
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

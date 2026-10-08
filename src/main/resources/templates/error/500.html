@@ -1,0 +1,22 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="panel error-panel">
+        <div class="error-code">500</div>
+        <h1>Ocurrió un error inesperado</h1>
+        <p class="subtitle mb-4">
+          No pudimos completar la operación. Inténtalo nuevamente.
+        </p>
+        <a class="btn btn-primary" th:href="@{/}">Ir al dashboard</a
+        ><a class="btn btn-outline-secondary ms-2" th:href="@{/candidatos}"
+          >Ver candidatos</a
+        >
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,310 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">RECLUTAMIENTO</div>
+          <h1 th:text="${title}"></h1>
+          <p class="subtitle">
+            Encuentra el perfil indicado para cada oportunidad.
+          </p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/candidatos/nuevo}"
+          ><i aria-hidden="true" class="bi bi-plus-lg"></i> Registrar
+          candidato</a
+        >
+      </div>
+      <form
+        class="filters"
+        method="get"
+        th:action="${currentPath}"
+        th:object="${filtro}"
+      >
+        <div th:replace="~{fragments/ui :: errors}"></div>
+        <div class="d-flex justify-content-between mb-3">
+          <h2 class="mb-0">
+            <i aria-hidden="true" class="bi bi-sliders me-2"></i> Buscar
+            candidatos
+          </h2>
+          <span class="small text-secondary"
+            >Combina los criterios que necesites</span
+          >
+        </div>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label" for="nombre">Nombre o apellidos</label
+            ><input
+              class="form-control"
+              id="nombre"
+              type="text"
+              th:field="*{nombre}"
+              placeholder="Buscar por nombre…"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('nombre')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="cedula">Cédula</label
+            ><input
+              class="form-control"
+              id="cedula"
+              type="text"
+              th:field="*{cedula}"
+              maxlength="13"
+              pattern="(?:[0-9]{0,11}|[0-9]{1,3}-[0-9]{0,7}(?:-[0-9]?)?)"
+              inputmode="numeric"
+              autocomplete="off"
+              data-cedula-mask
+              placeholder="000-0000000-0"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('cedula')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="puestoId">Puesto</label
+            ><select class="form-select" id="puestoId" th:field="*{puestoId}">
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${puestos}"
+                th:value="${x.id}"
+                th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+              ></option>
+            </select>
+            <div th:replace="~{fragments/ui :: fieldError('puestoId')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="departamento">Departamento</label
+            ><input
+              class="form-control"
+              id="departamento"
+              type="text"
+              th:field="*{departamento}"
+            />
+            <div
+              th:replace="~{fragments/ui :: fieldError('departamento')}"
+            ></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="estado">Estado</label
+            ><select class="form-select" id="estado" th:field="*{estado}">
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${estadosCandidato}"
+                th:value="${x}"
+                th:text="${@fmt.etiqueta(x)}"
+              ></option>
+            </select>
+            <div th:replace="~{fragments/ui :: fieldError('estado')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="competenciaId">Competencia</label
+            ><select
+              class="form-select"
+              id="competenciaId"
+              th:field="*{competenciaId}"
+            >
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${competencias}"
+                th:value="${x.id}"
+                th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+              ></option>
+            </select>
+            <div
+              th:replace="~{fragments/ui :: fieldError('competenciaId')}"
+            ></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="capacitacionId">Capacitación</label
+            ><select
+              class="form-select"
+              id="capacitacionId"
+              th:field="*{capacitacionId}"
+            >
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${capacitaciones}"
+                th:value="${x.id}"
+                th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+              ></option>
+            </select>
+            <div
+              th:replace="~{fragments/ui :: fieldError('capacitacionId')}"
+            ></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="idiomaId">Idioma</label
+            ><select class="form-select" id="idiomaId" th:field="*{idiomaId}">
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${idiomas}"
+                th:value="${x.id}"
+                th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+              ></option>
+            </select>
+            <div th:replace="~{fragments/ui :: fieldError('idiomaId')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="salarioMin"
+              >Salario mínimo (RD$)</label
+            ><input
+              class="form-control"
+              id="salarioMin"
+              type="number"
+              th:field="*{salarioMin}"
+              step="0.01"
+              min="0"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('salarioMin')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="salarioMax"
+              >Salario máximo (RD$)</label
+            ><input
+              class="form-control"
+              id="salarioMax"
+              type="number"
+              th:field="*{salarioMax}"
+              step="0.01"
+              min="0"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('salarioMax')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="orden">Ordenar por</label
+            ><select class="form-select" name="orden" id="orden">
+              <option value="recientes" th:selected="${orden == 'recientes'}">
+                Más recientes
+              </option>
+              <option value="nombre" th:selected="${orden == 'nombre'}">
+                Nombre A–Z
+              </option>
+              <option value="salario" th:selected="${orden == 'salario'}">
+                Salario ascendente
+              </option>
+            </select>
+          </div>
+          <div class="col-md-3 d-flex align-items-end gap-2">
+            <button class="btn btn-primary">
+              <i aria-hidden="true" class="bi bi-search"></i> Consultar</button
+            ><a class="btn btn-light" th:href="${currentPath}">Limpiar</a>
+          </div>
+        </div>
+      </form>
+      <div class="panel">
+        <div class="panel-heading">
+          <h2>Perfiles de candidatos</h2>
+          <span
+            class="small text-secondary"
+            th:text="|${page.totalElements} resultados|"
+          ></span>
+        </div>
+        <div
+          th:if="${page.empty}"
+          th:insert="~{fragments/ui :: empty('Prueba otros filtros o registra un nuevo candidato.')}"
+        ></div>
+        <div class="table-responsive" th:unless="${page.empty}">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Candidato / Cédula</th>
+                <th>Puesto / Departamento</th>
+                <th>Salario esperado</th>
+                <th>Competencias</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="c : ${page.content}">
+                <td>
+                  <a class="person" th:href="@{/candidatos/{id}(id=${c.id})}"
+                    ><span
+                      class="avatar"
+                      th:text="${@fmt.iniciales(c.nombreCompleto)}"
+                    ></span
+                    ><span
+                      ><strong th:text="${c.nombreCompleto}"></strong
+                      ><small th:text="${@fmt.cedula(c.cedula)}"></small></span
+                  ></a>
+                </td>
+                <td>
+                  <span th:text="${c.puesto.nombre}"></span
+                  ><small
+                    class="d-block mt-1 text-secondary"
+                    th:text="${c.departamento}"
+                  ></small>
+                </td>
+                <td
+                  class="salary"
+                  th:text="${@fmt.dinero(c.salarioAspirado)}"
+                ></td>
+                <td>
+                  <span
+                    class="chip"
+                    th:each="co : ${c.competencias}"
+                    th:text="${co.nombre}"
+                  ></span
+                  ><span th:if="${c.competencias.empty}" class="text-secondary"
+                    >Sin especificar</span
+                  >
+                </td>
+                <td>
+                  <span
+                    th:replace="~{fragments/ui :: badge(${c.estado})}"
+                  ></span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <a
+                      class="icon-btn"
+                      th:href="@{/candidatos/{id}(id=${c.id})}"
+                      title="Ver perfil"
+                      aria-label="Ver perfil"
+                      ><i aria-hidden="true" class="bi bi-eye"></i></a
+                    ><a
+                      class="icon-btn"
+                      th:if="${c.estado.name() != 'CONTRATADO'}"
+                      th:href="@{/candidatos/{id}/editar(id=${c.id})}"
+                      title="Editar"
+                      aria-label="Editar"
+                      ><i aria-hidden="true" class="bi bi-pencil"></i></a
+                    ><a
+                      class="icon-btn"
+                      th:if="${c.elegible}"
+                      th:href="@{/candidatos/{id}/contratar(id=${c.id})}"
+                      title="Contratar"
+                      aria-label="Contratar"
+                      ><i aria-hidden="true" class="bi bi-person-check"></i
+                    ></a
+                    ><form
+                      class="d-inline"
+                      method="post"
+                      th:if="${c.estado.name() != 'CONTRATADO'}"
+                      th:action="@{/candidatos/{id}/eliminar(id=${c.id})}"
+                      th:data-confirm="|¿Eliminar definitivamente a ${c.nombreCompleto}? Esta acción no se puede deshacer.|"
+                    >
+                      <input type="hidden" name="version" th:value="${c.version}" />
+                      <button
+                        class="icon-btn text-danger"
+                        type="submit"
+                        title="Eliminar candidato"
+                        aria-label="Eliminar candidato"
+                      >
+                        <i aria-hidden="true" class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div th:replace="~{fragments/ui :: pagination}"></div>
+      </div>
+    </section>
+  </body>
+</html>

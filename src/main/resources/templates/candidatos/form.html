@@ -1,0 +1,494 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">RECLUTAMIENTO</div>
+          <h1
+            th:text="${id == null ? 'Registrar candidato' : 'Editar candidato'}"
+          ></h1>
+          <p class="subtitle">
+            Construye un perfil completo para una mejor selección.
+          </p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/candidatos}"
+          ><i aria-hidden="true" class="bi bi-arrow-left"></i> Volver a
+          candidatos</a
+        >
+      </div>
+      <form
+        class="panel"
+        method="post"
+        th:action="${id == null ? '/candidatos' : '/candidatos/' + id}"
+        th:object="${form}"
+        th:data-confirm="${id != null ? '¿Deseas guardar los cambios del perfil y sus experiencias?' : null}"
+      >
+        <input type="hidden" th:field="*{version}" />
+        <div class="form-section">
+          <div th:replace="~{fragments/ui :: errors}"></div>
+          <h2 class="form-section-title">
+            <i aria-hidden="true" class="bi bi-person"></i> Datos personales
+          </h2>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label" for="cedula"
+                >Cédula<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="cedula"
+                type="text"
+                th:field="*{cedula}"
+                required
+                maxlength="13"
+                minlength="11"
+                pattern="(?:[0-9]{11}|[0-9]{3}-[0-9]{7}-[0-9])"
+                inputmode="numeric"
+                autocomplete="off"
+                data-cedula-mask
+                placeholder="000-0000000-0"
+              />
+              <div th:replace="~{fragments/ui :: fieldError('cedula')}"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="email"
+                >Correo electrónico<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="email"
+                type="email"
+                th:field="*{email}"
+                required
+                maxlength="180"
+                autocomplete="email"
+                pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                placeholder="nombre@correo.com"
+              />
+              <div th:replace="~{fragments/ui :: fieldError('email')}"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="nombre"
+                >Nombre<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="nombre"
+                type="text"
+                th:field="*{nombre}"
+                required
+                maxlength="100"
+              />
+              <div th:replace="~{fragments/ui :: fieldError('nombre')}"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="apellidos"
+                >Apellidos<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="apellidos"
+                type="text"
+                th:field="*{apellidos}"
+                required
+                maxlength="100"
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('apellidos')}"
+              ></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="telefono">Teléfono</label
+              ><input
+                class="form-control"
+                id="telefono"
+                type="tel"
+                th:field="*{telefono}"
+                maxlength="15"
+                pattern="[0-9]{7,15}"
+                inputmode="numeric"
+                autocomplete="tel"
+                data-numeric-only
+                placeholder="8095550000"
+              />
+              <div th:replace="~{fragments/ui :: fieldError('telefono')}"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="recomendadoPor"
+                >Recomendado por</label
+              ><input
+                class="form-control"
+                id="recomendadoPor"
+                type="text"
+                th:field="*{recomendadoPor}"
+                maxlength="180"
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('recomendadoPor')}"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h2 class="form-section-title">
+            <i aria-hidden="true" class="bi bi-briefcase"></i> Postulación
+          </h2>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label" for="puestoId"
+                >Puesto al que aspira<span class="required">*</span></label
+              ><select
+                class="form-select"
+                id="puestoId"
+                th:field="*{puestoId}"
+                required
+              >
+                <option value="">Seleccionar…</option>
+                <option
+                  th:each="x : ${puestos}"
+                  th:value="${x.id}"
+                  th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+                ></option>
+              </select>
+              <div th:replace="~{fragments/ui :: fieldError('puestoId')}"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="departamento"
+                >Departamento<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="departamento"
+                type="text"
+                th:field="*{departamento}"
+                required
+                maxlength="100"
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('departamento')}"
+              ></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="salarioAspirado"
+                >Salario esperado (RD$)<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="salarioAspirado"
+                type="number"
+                th:field="*{salarioAspirado}"
+                required
+                step="0.01"
+                min="0"
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('salarioAspirado')}"
+              ></div>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <p class="form-text">
+                Se muestran los puestos activos. Los valores históricos
+                inactivos pueden conservarse al editar.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h2 class="form-section-title">
+            <i aria-hidden="true" class="bi bi-stars"></i> Competencias
+          </h2>
+          <div class="row g-3">
+            <div class="col-md-4" th:each="x : ${competencias}">
+              <label class="check-option"
+                ><input
+                  class="form-check-input mt-0"
+                  type="checkbox"
+                  th:field="*{competenciaIds}"
+                  th:value="${x.id}"
+                /><span th:text="${x.nombre}"></span
+                ><small th:if="${x.estado.name() == 'INACTIVO'}"
+                  >(inactiva)</small
+                ></label
+              >
+            </div>
+          </div>
+          <div
+            th:replace="~{fragments/ui :: fieldError('competenciaIds')}"
+          ></div>
+          <p class="form-text" th:if="${#lists.isEmpty(competencias)}">
+            No hay competencias activas. Puedes crearlas desde Configuración.
+          </p>
+        </div>
+        <div class="form-section">
+          <h2 class="form-section-title">
+            <i aria-hidden="true" class="bi bi-translate"></i> Idiomas y nivel
+            de dominio
+          </h2>
+          <div th:replace="~{fragments/ui :: fieldError('idiomas')}"></div>
+          <div class="row g-3">
+            <div class="col-md-4" th:each="idioma, stat : *{idiomas}">
+              <div class="check-option flex-wrap">
+                <input
+                  type="hidden"
+                  th:field="*{idiomas[__${stat.index}__].idiomaId}"
+                /><label class="d-flex align-items-center gap-2 flex-grow-1"
+                  ><input
+                    class="form-check-input mt-0"
+                    type="checkbox"
+                    th:field="*{idiomas[__${stat.index}__].seleccionado}" /><span
+                    th:text="${idiomaNombres[idioma.idiomaId] ?: 'Idioma no disponible'}"
+                  ></span></label
+                ><select
+                  class="form-select form-select-sm"
+                  style="width: 130px"
+                  th:field="*{idiomas[__${stat.index}__].nivel}"
+                  th:aria-label="|Nivel de ${idiomaNombres[idioma.idiomaId]}|"
+                >
+                  <option
+                    th:each="x : ${nivelesIdioma}"
+                    th:value="${x}"
+                    th:text="${@fmt.etiqueta(x)}"
+                  ></option>
+                </select>
+                <div
+                  class="field-error"
+                  th:errors="*{idiomas[__${stat.index}__].nivel}"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <p class="form-text" th:if="*{idiomas.empty}">
+            No hay idiomas activos disponibles.
+          </p>
+        </div>
+        <div class="form-section">
+          <h2 class="form-section-title">
+            <i aria-hidden="true" class="bi bi-mortarboard"></i> Capacitaciones
+          </h2>
+          <div class="row g-3">
+            <div class="col-md-6" th:each="x : ${capacitaciones}">
+              <label class="check-option"
+                ><input
+                  class="form-check-input mt-0"
+                  type="checkbox"
+                  th:field="*{capacitacionIds}"
+                  th:value="${x.id}" /><span
+                  ><span th:text="${x.nombre}"></span
+                  ><small
+                    class="d-block text-secondary mt-1"
+                    th:text="|${@fmt.etiqueta(x.nivel)} · ${x.institucion}|"
+                  ></small></span
+              ></label>
+            </div>
+          </div>
+          <div
+            th:replace="~{fragments/ui :: fieldError('capacitacionIds')}"
+          ></div>
+          <p class="form-text" th:if="${#lists.isEmpty(capacitaciones)}">
+            No hay capacitaciones activas disponibles.
+          </p>
+        </div>
+        <div class="form-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="form-section-title mb-0">
+              <i aria-hidden="true" class="bi bi-building"></i> Experiencia
+              laboral
+            </h2>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              type="button"
+              id="add-experience"
+            >
+              <i aria-hidden="true" class="bi bi-plus-lg"></i> Agregar
+              experiencia
+            </button>
+          </div>
+          <p class="form-text mb-3">
+            Puedes registrar hasta 30 experiencias. Deja la fecha final vacía si
+            es el empleo actual.
+          </p>
+          <div th:replace="~{fragments/ui :: fieldError('experiencias')}"></div>
+          <div id="experiences">
+            <div class="experience" th:each="exp, stat : *{experiencias}">
+              <div class="d-flex justify-content-between mb-3">
+                <h3>
+                  Experiencia
+                  <span data-exp-number th:text="${stat.index+1}"></span>
+                </h3>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  data-remove-experience
+                >
+                  <i aria-hidden="true" class="bi bi-trash"></i> Quitar
+                </button>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label" th:for="|exp-${stat.index}-empresa|"
+                    >Empresa<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    type="text"
+                    data-exp-field="empresa"
+                    th:field="*{experiencias[__${stat.index}__].empresa}"
+                    required
+                    maxlength="180"
+                  />
+                  <div
+                    class="field-error"
+                    th:errors="*{experiencias[__${stat.index}__].empresa}"
+                  ></div>
+                </div>
+                <div class="col-md-6">
+                  <label
+                    class="form-label"
+                    th:for="|exp-${stat.index}-puestoOcupado|"
+                    >Puesto ocupado<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    type="text"
+                    data-exp-field="puestoOcupado"
+                    th:field="*{experiencias[__${stat.index}__].puestoOcupado}"
+                    required
+                    maxlength="180"
+                  />
+                  <div
+                    class="field-error"
+                    th:errors="*{experiencias[__${stat.index}__].puestoOcupado}"
+                  ></div>
+                </div>
+                <div class="col-md-4">
+                  <label
+                    class="form-label"
+                    th:for="|exp-${stat.index}-fechaDesde|"
+                    >Fecha desde<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    type="date"
+                    data-exp-field="fechaDesde"
+                    th:field="*{experiencias[__${stat.index}__].fechaDesde}"
+                    required
+                  />
+                  <div
+                    class="field-error"
+                    th:errors="*{experiencias[__${stat.index}__].fechaDesde}"
+                  ></div>
+                </div>
+                <div class="col-md-4">
+                  <label
+                    class="form-label"
+                    th:for="|exp-${stat.index}-fechaHasta|"
+                    >Fecha hasta</label
+                  ><input
+                    class="form-control"
+                    type="date"
+                    data-exp-field="fechaHasta"
+                    th:field="*{experiencias[__${stat.index}__].fechaHasta}"
+                  />
+                  <div
+                    class="field-error"
+                    th:errors="*{experiencias[__${stat.index}__].fechaHasta}"
+                  ></div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" th:for="|exp-${stat.index}-salario|"
+                    >Salario (RD$)<span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    type="number"
+                    data-exp-field="salario"
+                    th:field="*{experiencias[__${stat.index}__].salario}"
+                    required
+                    step="0.01"
+                    min="0"
+                  />
+                  <div
+                    class="field-error"
+                    th:errors="*{experiencias[__${stat.index}__].salario}"
+                  ></div>
+                </div>
+                <div
+                  class="col-12 field-error"
+                  th:errors="*{experiencias[__${stat.index}__].periodoValido}"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a class="btn btn-light" th:href="@{/candidatos}">Cancelar</a
+          ><button class="btn btn-primary">
+            <i aria-hidden="true" class="bi bi-check-lg"></i> Guardar candidato
+          </button>
+        </div>
+      </form>
+      <template id="experience-template"
+        ><div class="experience">
+          <div class="d-flex justify-content-between mb-3">
+            <h3>Experiencia <span data-exp-number></span></h3>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              data-remove-experience
+            >
+              <i aria-hidden="true" class="bi bi-trash"></i> Quitar
+            </button>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label"
+                >Empresa<span class="required">*</span></label
+              ><input
+                class="form-control"
+                type="text"
+                data-exp-field="empresa"
+                required
+                maxlength="180"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"
+                >Puesto ocupado<span class="required">*</span></label
+              ><input
+                class="form-control"
+                type="text"
+                data-exp-field="puestoOcupado"
+                required
+                maxlength="180"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"
+                >Fecha desde<span class="required">*</span></label
+              ><input
+                class="form-control"
+                type="date"
+                data-exp-field="fechaDesde"
+                required
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Fecha hasta</label
+              ><input
+                class="form-control"
+                type="date"
+                data-exp-field="fechaHasta"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"
+                >Salario (RD$)<span class="required">*</span></label
+              ><input
+                class="form-control"
+                type="number"
+                data-exp-field="salario"
+                required
+                step="0.01"
+                min="0"
+              />
+            </div>
+          </div></div
+      ></template>
+    </section>
+  </body>
+</html>

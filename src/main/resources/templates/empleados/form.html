@@ -1,0 +1,132 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">RECURSOS HUMANOS</div>
+          <h1>Editar datos laborales</h1>
+          <p
+            class="subtitle"
+            th:text="|${e.nombre} · ${@fmt.cedula(e.cedula)}|"
+          ></p>
+        </div>
+        <a
+          class="btn btn-outline-secondary"
+          th:href="@{/empleados/{id}(id=${e.id})}"
+          >Volver al perfil</a
+        >
+      </div>
+      <form
+        method="post"
+        class="panel form-narrow"
+        th:action="@{/empleados/{id}(id=${e.id})}"
+        th:object="${form}"
+        data-confirm="¿Deseas guardar los cambios de este empleado?"
+      >
+        <input type="hidden" th:field="*{version}" />
+        <div class="form-section">
+          <div th:replace="~{fragments/ui :: errors}"></div>
+          <div class="form-hint">
+            La identidad y la postulación original se conservan como parte del
+            historial de contratación.
+          </div>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label" for="fechaIngreso"
+                >Fecha de ingreso<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="fechaIngreso"
+                type="date"
+                th:field="*{fechaIngreso}"
+                required
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('fechaIngreso')}"
+              ></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="departamento"
+                >Departamento<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="departamento"
+                type="text"
+                th:field="*{departamento}"
+                required
+                maxlength="100"
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('departamento')}"
+              ></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="puestoId"
+                >Puesto<span class="required">*</span></label
+              ><select
+                class="form-select"
+                id="puestoId"
+                th:field="*{puestoId}"
+                required
+              >
+                <option value="">Seleccionar…</option>
+                <option
+                  th:each="x : ${puestos}"
+                  th:value="${x.id}"
+                  th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+                ></option>
+              </select>
+              <div th:replace="~{fragments/ui :: fieldError('puestoId')}"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="salarioMensual"
+                >Salario mensual (RD$)<span class="required">*</span></label
+              ><input
+                class="form-control"
+                id="salarioMensual"
+                type="number"
+                th:field="*{salarioMensual}"
+                required
+                step="0.01"
+                min="0.01"
+              />
+              <div
+                th:replace="~{fragments/ui :: fieldError('salarioMensual')}"
+              ></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="estado"
+                >Estado<span class="required">*</span></label
+              ><select
+                class="form-select"
+                id="estado"
+                th:field="*{estado}"
+                required
+              >
+                <option value="">Seleccionar…</option>
+                <option
+                  th:each="x : ${estados}"
+                  th:value="${x}"
+                  th:text="${@fmt.etiqueta(x)}"
+                ></option>
+              </select>
+              <div th:replace="~{fragments/ui :: fieldError('estado')}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a class="btn btn-light" th:href="@{/empleados/{id}(id=${e.id})}"
+            >Cancelar</a
+          ><button class="btn btn-primary">
+            <i aria-hidden="true" class="bi bi-check-lg"></i> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </section>
+  </body>
+</html>

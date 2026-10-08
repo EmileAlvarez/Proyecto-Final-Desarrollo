@@ -1,0 +1,190 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:fragment="shell(content)"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title th:text="(${title} ?: 'Talento RH') + ' · Talento RH'">
+      Talento RH
+    </title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/app.css}" />
+    <link rel="icon" th:href="@{/images/favicon.svg}" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" th:href="@{/}"
+        ><span class="brand-icon"
+          ><i aria-hidden="true" class="bi bi-intersect"></i></span
+        ><span
+          >talento<span class="brand-rh">RH</span
+          ><small>RECLUTAMIENTO Y SELECCIÓN</small></span
+        ></a
+      >
+      <nav aria-label="Navegación principal">
+        <a th:href="@{/}" th:classappend="${currentPath == '/' ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-grid-1x2"></i> Dashboard</a
+        >
+        <p>RECLUTAMIENTO</p>
+        <a
+          th:href="@{/candidatos}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/candidatos') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-people"></i> Candidatos</a
+        >
+        <a
+          th:href="@{/consultas}"
+          th:classappend="${currentPath == '/consultas' ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-search"></i> Consulta de
+          candidatos</a
+        >
+        <p>CONFIGURACIÓN</p>
+        <a
+          th:href="@{/competencias}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/competencias') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-stars"></i> Competencias</a
+        >
+        <a
+          th:href="@{/idiomas}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/idiomas') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-translate"></i> Idiomas</a
+        >
+        <a
+          th:href="@{/capacitaciones}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/capacitaciones') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-mortarboard"></i>
+          Capacitaciones</a
+        >
+        <a
+          th:href="@{/puestos}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/puestos') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-briefcase"></i> Puestos</a
+        >
+        <p>RECURSOS HUMANOS</p>
+        <a
+          th:href="@{/empleados}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/empleados') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-person-badge"></i> Empleados</a
+        >
+        <p>REPORTES</p>
+        <a
+          th:href="@{/reportes/nuevos-ingresos}"
+          th:classappend="${#strings.startsWith(currentPath ?: '','/reportes') ? 'active' : ''}"
+          ><i aria-hidden="true" class="bi bi-bar-chart-line"></i> Nuevos
+          ingresos</a
+        >
+      </nav>
+      <div class="sidebar-footer">
+        <div class="university">APEC</div>
+        <div>
+          Proyecto final<small>Universidad APEC · Recursos Humanos</small>
+        </div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="d-flex align-items-center gap-3">
+          <button
+            class="btn btn-light d-lg-none"
+            id="menu-toggle"
+            type="button"
+            aria-label="Abrir menú"
+            aria-controls="sidebar"
+            aria-expanded="false"
+          >
+            <i aria-hidden="true" class="bi bi-list"></i></button
+          ><span class="system-name">Sistema de Reclutamiento y Selección</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="environment" th:if="${demo}"
+            ><span></span> Demostración</span
+          ><span class="avatar small-avatar">RH</span>
+          <form class="logout-form" th:action="@{/logout}" method="post">
+            <button class="logout-button" type="submit" title="Cerrar sesión" aria-label="Cerrar sesión">
+              <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+      </header>
+      <main id="main" class="main-content">
+        <div class="breadcrumbs">
+          <a th:href="@{/}">Inicio</a
+          ><i aria-hidden="true" class="bi bi-chevron-right"></i
+          ><span th:text="${title}">Dashboard</span>
+        </div>
+        <div
+          class="alert alert-success alert-dismissible fade show"
+          th:if="${success}"
+          role="status"
+        >
+          <i aria-hidden="true" class="bi bi-check-circle me-2"></i
+          ><span th:text="${success}"></span
+          ><button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          th:if="${error}"
+          role="alert"
+        >
+          <i aria-hidden="true" class="bi bi-exclamation-triangle me-2"></i>
+          <span th:text="${error}"></span
+          ><button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <th:block th:replace="${content}" />
+      </main>
+      <footer class="page-footer">
+        <span>Talento RH · Gestión de personas</span
+        ><span>Proyecto académico · UNAPEC</span>
+      </footer>
+    </div>
+    <div
+      class="modal fade"
+      id="confirm-modal"
+      tabindex="-1"
+      aria-labelledby="confirm-title"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="confirm-title">
+              Confirmar operación
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body"><p id="confirm-message"></p></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              Cancelar</button
+            ><button type="button" class="btn btn-primary" id="confirm-accept">
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script th:src="@{/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+  </body>
+</html>

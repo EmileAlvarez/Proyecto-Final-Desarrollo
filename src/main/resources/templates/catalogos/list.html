@@ -1,0 +1,202 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">CONFIGURACIÓN</div>
+          <h1 th:text="${tipo.titulo}"></h1>
+          <p class="subtitle">
+            Administra el catálogo y mantén actualizadas las opciones de
+            selección.
+          </p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/{ruta}/nuevo(ruta=${tipo.ruta})}"
+          ><i aria-hidden="true" class="bi bi-plus-lg"></i> Nuevo registro</a
+        >
+      </div>
+      <form
+        class="filters"
+        method="get"
+        th:action="@{/{ruta}(ruta=${tipo.ruta})}"
+      >
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label" for="q"
+              >Buscar por nombre o descripción</label
+            ><input
+              class="form-control"
+              id="q"
+              name="q"
+              th:value="${q}"
+              placeholder="Escribe para buscar…"
+            />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label" for="estado">Estado</label
+            ><select class="form-select" name="estado" id="estado">
+              <option value="">Todos</option>
+              <option
+                th:each="x : ${estados}"
+                th:value="${x}"
+                th:selected="${x == estado}"
+                th:text="${@fmt.etiqueta(x)}"
+              ></option>
+            </select>
+          </div>
+          <div class="col-md-2" th:if="${tipo.ruta == 'puestos'}">
+            <label class="form-label" for="riesgo">Nivel de riesgo</label
+            ><select class="form-select" id="riesgo" name="riesgo">
+              <option value="">Todos</option>
+              <option
+                th:each="x : ${riesgos}"
+                th:value="${x}"
+                th:selected="${x == riesgo}"
+                th:text="${@fmt.etiqueta(x)}"
+              ></option>
+            </select>
+          </div>
+          <div class="col-md-2" th:if="${tipo.ruta == 'capacitaciones'}">
+            <label class="form-label" for="nivel">Nivel</label
+            ><select class="form-select" id="nivel" name="nivel">
+              <option value="">Todos</option>
+              <option
+                th:each="x : ${niveles}"
+                th:value="${x}"
+                th:selected="${x == nivel}"
+                th:text="${@fmt.etiqueta(x)}"
+              ></option>
+            </select>
+          </div>
+          <div class="col-md-3" th:if="${tipo.ruta == 'capacitaciones'}">
+            <label class="form-label" for="institucion">Institución</label
+            ><input
+              class="form-control"
+              id="institucion"
+              name="institucion"
+              th:value="${institucion}"
+            />
+          </div>
+          <div class="col-auto d-flex gap-2">
+            <button class="btn btn-primary">
+              <i aria-hidden="true" class="bi bi-search"></i> Buscar</button
+            ><a class="btn btn-light" th:href="@{/{ruta}(ruta=${tipo.ruta})}"
+              >Limpiar</a
+            >
+          </div>
+        </div>
+      </form>
+      <div class="panel">
+        <div class="panel-heading">
+          <h2 th:text="${tipo.titulo}"></h2>
+          <span
+            class="text-secondary small"
+            th:text="|${page.totalElements} resultados|"
+          ></span>
+        </div>
+        <div
+          th:if="${page.empty}"
+          th:insert="~{fragments/ui :: empty('Crea un registro o modifica los filtros de búsqueda.')}"
+        ></div>
+        <div class="table-responsive" th:unless="${page.empty}">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th th:text="${tipo.campo}"></th>
+                <th th:if="${tipo.ruta == 'puestos'}">Riesgo</th>
+                <th th:if="${tipo.ruta == 'puestos'}">Rango salarial</th>
+                <th th:if="${tipo.ruta == 'capacitaciones'}">
+                  Nivel / Institución
+                </th>
+                <th th:if="${tipo.ruta == 'capacitaciones'}">Periodo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="x : ${page.content}">
+                <td th:text="|${x.id}|"></td>
+                <td>
+                  <a
+                    class="fw-semibold"
+                    th:href="@{/{ruta}/{id}(ruta=${tipo.ruta},id=${x.id})}"
+                    th:text="${x.nombre}"
+                  ></a>
+                </td>
+                <td
+                  th:if="${tipo.ruta == 'puestos'}"
+                  th:text="${@fmt.etiqueta(x.riesgo)}"
+                ></td>
+                <td class="salary" th:if="${tipo.ruta == 'puestos'}">
+                  <span th:text="${@fmt.dinero(x.salarioMinimo)}"></span
+                  ><br /><small
+                    class="text-secondary"
+                    th:text="|a ${@fmt.dinero(x.salarioMaximo)}|"
+                  ></small>
+                </td>
+                <td th:if="${tipo.ruta == 'capacitaciones'}">
+                  <span th:text="${@fmt.etiqueta(x.nivel)}"></span
+                  ><small
+                    class="d-block text-secondary"
+                    th:text="${x.institucion}"
+                  ></small>
+                </td>
+                <td th:if="${tipo.ruta == 'capacitaciones'}">
+                  <span th:text="${x.fechaDesde}"></span><br /><small
+                    class="text-secondary"
+                    th:text="${x.fechaHasta ?: 'En curso'}"
+                  ></small>
+                </td>
+                <td>
+                  <span
+                    th:replace="~{fragments/ui :: badge(${x.estado})}"
+                  ></span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <a
+                      class="icon-btn"
+                      th:href="@{/{ruta}/{id}(ruta=${tipo.ruta},id=${x.id})}"
+                      title="Ver detalle"
+                      aria-label="Ver detalle"
+                      ><i aria-hidden="true" class="bi bi-eye"></i></a
+                    ><a
+                      class="icon-btn"
+                      th:href="@{/{ruta}/{id}/editar(ruta=${tipo.ruta},id=${x.id})}"
+                      title="Editar"
+                      aria-label="Editar"
+                      ><i aria-hidden="true" class="bi bi-pencil"></i
+                    ></a>
+                    <form
+                      method="post"
+                      th:action="@{/{ruta}/{id}/estado(ruta=${tipo.ruta},id=${x.id})}"
+                      th:data-confirm="|¿Deseas cambiar el estado de ${x.nombre}?|"
+                    >
+                      <input
+                        type="hidden"
+                        name="version"
+                        th:value="${x.version}"
+                      /><button
+                        class="icon-btn"
+                        th:title="${x.estado.name() == 'ACTIVO' ? 'Inactivar' : 'Activar'}"
+                        aria-label="Activar o inactivar"
+                      >
+                        <i aria-hidden="true" class="bi bi-power"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div th:replace="~{fragments/ui :: pagination}"></div>
+      </div>
+    </section>
+  </body>
+</html>

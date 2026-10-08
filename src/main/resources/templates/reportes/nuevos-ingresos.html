@@ -1,0 +1,157 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">REPORTES · TALENTO RH</div>
+          <h1>Empleados de nuevo ingreso</h1>
+          <p class="subtitle">
+            Consulta las incorporaciones de un periodo y su total salarial
+            mensual.
+          </p>
+        </div>
+        <div
+          class="d-flex gap-2 no-print"
+          th:if="${!#fields.hasErrors('filtro.*')}"
+        >
+          <button class="btn btn-outline-secondary" type="button" data-print>
+            <i aria-hidden="true" class="bi bi-printer"></i> Imprimir</button
+          ><a
+            class="btn btn-primary"
+            th:href="@{/reportes/nuevos-ingresos/csv(desde=${filtro.desde},hasta=${filtro.hasta})}"
+            ><i aria-hidden="true" class="bi bi-download"></i> Exportar CSV</a
+          >
+        </div>
+      </div>
+      <form
+        class="filters"
+        method="get"
+        th:action="@{/reportes/nuevos-ingresos}"
+        th:object="${filtro}"
+      >
+        <div th:replace="~{fragments/ui :: errors}"></div>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label" for="desde"
+              >Fecha desde<span class="required">*</span></label
+            ><input
+              class="form-control"
+              id="desde"
+              type="date"
+              th:field="*{desde}"
+              required
+            />
+            <div th:replace="~{fragments/ui :: fieldError('desde')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="hasta"
+              >Fecha hasta<span class="required">*</span></label
+            ><input
+              class="form-control"
+              id="hasta"
+              type="date"
+              th:field="*{hasta}"
+              required
+              data-start-date="desde"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('hasta')}"></div>
+          </div>
+          <div class="col-auto d-flex gap-2">
+            <button class="btn btn-primary">
+              <i aria-hidden="true" class="bi bi-search"></i> Consultar</button
+            ><a class="btn btn-light" th:href="@{/reportes/nuevos-ingresos}"
+              >Limpiar</a
+            >
+          </div>
+        </div>
+      </form>
+      <div class="report-summary">
+        <div>
+          <span>PERIODO SELECCIONADO</span
+          ><strong
+            style="font-size: 17px"
+            th:text="|${filtro.desde ?: '—'} al ${filtro.hasta ?: '—'}|"
+          ></strong>
+        </div>
+        <div>
+          <span>EMPLEADOS ENCONTRADOS</span
+          ><strong th:text="${empleados.size()}"></strong>
+        </div>
+        <div>
+          <span>TOTAL DE SALARIOS MENSUALES</span
+          ><strong th:text="${@fmt.dinero(total)}"></strong>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">
+          <h2>Detalle de nuevas incorporaciones</h2>
+          <span class="small text-secondary"
+            >Fechas inicial y final incluidas</span
+          >
+        </div>
+        <div
+          th:if="${empleados.empty}"
+          th:insert="~{fragments/ui :: empty('No se encontraron empleados para el periodo indicado.')}"
+        ></div>
+        <div class="table-responsive" th:unless="${empleados.empty}">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cédula</th>
+                <th>Nombre</th>
+                <th>Fecha de ingreso</th>
+                <th>Departamento</th>
+                <th>Puesto</th>
+                <th>Salario mensual</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="e : ${empleados}">
+                <td th:text="${e.id}"></td>
+                <td class="no-wrap" th:text="${@fmt.cedula(e.cedula)}"></td>
+                <td>
+                  <a
+                    th:href="@{/empleados/{id}(id=${e.id})}"
+                    th:text="${e.nombre}"
+                  ></a>
+                </td>
+                <td
+                  th:text="${#temporals.format(e.fechaIngreso,'dd/MM/yyyy')}"
+                ></td>
+                <td th:text="${e.departamento}"></td>
+                <td th:text="${e.puesto.nombre}"></td>
+                <td
+                  class="salary"
+                  th:text="${@fmt.dinero(e.salarioMensual)}"
+                ></td>
+                <td>
+                  <span
+                    th:replace="~{fragments/ui :: badge(${e.estado})}"
+                  ></span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="6" class="text-end fw-bold">Total mensual</td>
+                <td class="salary fw-bold" th:text="${@fmt.dinero(total)}"></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <p class="text-secondary small">
+        El reporte incluye empleados activos e inactivos cuya fecha de ingreso
+        pertenece al periodo seleccionado.
+      </p>
+    </section>
+  </body>
+</html>

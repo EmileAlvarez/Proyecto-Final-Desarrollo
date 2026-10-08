@@ -1,0 +1,180 @@
+<!doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: shell(~{::section})}"
+>
+  <body>
+    <section>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">RECURSOS HUMANOS</div>
+          <h1>Empleados</h1>
+          <p class="subtitle">
+            Las personas que ya forman parte de la organización.
+          </p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/candidatos}"
+          ><i aria-hidden="true" class="bi bi-person-plus"></i> Contratar desde
+          candidatos</a
+        >
+      </div>
+      <form
+        method="get"
+        th:action="@{/empleados}"
+        th:object="${filtro}"
+        class="filters"
+      >
+        <div th:replace="~{fragments/ui :: errors}"></div>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label" for="nombre">Nombre</label
+            ><input
+              class="form-control"
+              id="nombre"
+              type="text"
+              th:field="*{nombre}"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('nombre')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="cedula">Cédula</label
+            ><input
+              class="form-control"
+              id="cedula"
+              type="text"
+              th:field="*{cedula}"
+              maxlength="13"
+              pattern="(?:[0-9]{0,11}|[0-9]{1,3}-[0-9]{0,7}(?:-[0-9]?)?)"
+              inputmode="numeric"
+              autocomplete="off"
+              data-cedula-mask
+              placeholder="000-0000000-0"
+            />
+            <div th:replace="~{fragments/ui :: fieldError('cedula')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="departamento">Departamento</label
+            ><input
+              class="form-control"
+              id="departamento"
+              type="text"
+              th:field="*{departamento}"
+            />
+            <div
+              th:replace="~{fragments/ui :: fieldError('departamento')}"
+            ></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="puestoId">Puesto</label
+            ><select class="form-select" id="puestoId" th:field="*{puestoId}">
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${puestos}"
+                th:value="${x.id}"
+                th:text="${x.nombre + (x.estado.name() == 'INACTIVO' ? ' (inactivo)' : '')}"
+              ></option>
+            </select>
+            <div th:replace="~{fragments/ui :: fieldError('puestoId')}"></div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="estado">Estado</label
+            ><select class="form-select" id="estado" th:field="*{estado}">
+              <option value="">Seleccionar…</option>
+              <option
+                th:each="x : ${estados}"
+                th:value="${x}"
+                th:text="${@fmt.etiqueta(x)}"
+              ></option>
+            </select>
+            <div th:replace="~{fragments/ui :: fieldError('estado')}"></div>
+          </div>
+          <div class="col-auto d-flex align-items-end gap-2">
+            <button class="btn btn-primary">
+              <i aria-hidden="true" class="bi bi-search"></i> Buscar</button
+            ><a class="btn btn-light" th:href="@{/empleados}">Limpiar</a>
+          </div>
+        </div>
+      </form>
+      <div class="panel">
+        <div class="panel-heading">
+          <h2>Directorio de empleados</h2>
+          <span
+            class="small text-secondary"
+            th:text="|${page.totalElements} resultados|"
+          ></span>
+        </div>
+        <div
+          th:if="${page.empty}"
+          th:insert="~{fragments/ui :: empty('Completa una contratación o modifica los filtros.')}"
+        ></div>
+        <div class="table-responsive" th:unless="${page.empty}">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Empleado / Cédula</th>
+                <th>Puesto / Departamento</th>
+                <th>Fecha de ingreso</th>
+                <th>Salario mensual</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="e : ${page.content}">
+                <td>
+                  <a class="person" th:href="@{/empleados/{id}(id=${e.id})}"
+                    ><span
+                      class="avatar"
+                      th:text="${@fmt.iniciales(e.nombre)}"
+                    ></span
+                    ><span
+                      ><strong th:text="${e.nombre}"></strong
+                      ><small th:text="${@fmt.cedula(e.cedula)}"></small></span
+                  ></a>
+                </td>
+                <td>
+                  <span th:text="${e.puesto.nombre}"></span
+                  ><small
+                    class="d-block mt-1 text-secondary"
+                    th:text="${e.departamento}"
+                  ></small>
+                </td>
+                <td
+                  th:text="${#temporals.format(e.fechaIngreso,'dd/MM/yyyy')}"
+                ></td>
+                <td
+                  class="salary"
+                  th:text="${@fmt.dinero(e.salarioMensual)}"
+                ></td>
+                <td>
+                  <span
+                    th:replace="~{fragments/ui :: badge(${e.estado})}"
+                  ></span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <a
+                      class="icon-btn"
+                      th:href="@{/empleados/{id}(id=${e.id})}"
+                      aria-label="Ver detalle"
+                      title="Ver detalle"
+                      ><i aria-hidden="true" class="bi bi-eye"></i></a
+                    ><a
+                      class="icon-btn"
+                      th:href="@{/empleados/{id}/editar(id=${e.id})}"
+                      aria-label="Editar"
+                      title="Editar"
+                      ><i aria-hidden="true" class="bi bi-pencil"></i
+                    ></a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div th:replace="~{fragments/ui :: pagination}"></div>
+      </div>
+    </section>
+  </body>
+</html>
